@@ -1,0 +1,39 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_PORT: ${ZOOKEEPER_CLIENT_PORT}
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_BROKERS}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  kafka-info:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    #
+    environment:
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+    command: [
+      "bash", "-c",
+      "chmod +x create-topics.sh && create-topics.sh"
+    ]
+  user-service:
+    build: ./user-service
+    image: ${USER_SERVICE_IMAGE}
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC_USER_SERVICE_EVENT: ${KAFKA_TOPIC_USER_SERVICE_EVENT}
+    depends_on:
+      - kafka-info
+
