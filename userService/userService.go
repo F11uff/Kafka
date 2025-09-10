@@ -26,7 +26,7 @@ type RegisterRequest struct {
 }
 
 func getKafkaWriter(topic string) *kafka.Writer {
-	kafkaBrokers := getEnv("KAFKA_BROKERS", "localhost:9092")
+	kafkaBrokers := getEnv("KAFKA_BROKERS", "kafka:9092")
 	return &kafka.Writer{
 		Addr:     kafka.TCP(kafkaBrokers),
 		Topic:    topic,
@@ -44,13 +44,12 @@ func getEnv(key, defaultValue string) string {
 
 func main() {
 	kafkaBrokers := getEnv("KAFKA_BROKERS", "kafka:9092")
-	userEventsTopic := getEnv("KAFKA_TOPIC_USER_EVENTS", "user-events")
+	notificationTopic := getEnv("KAFKA_TOPIC_NOTIFICATION_EVENTS", "notification-events")
 	analyticsTopic := getEnv("KAFKA_TOPIC_ANALYTICS_EVENTS", "analytics-events")
 	env := getEnv("ENVIRONMENT", "development")
-	logLevel := getEnv("LOG_LEVEL", "info")
 
 	fmt.Printf("Starting User Service in %s environment\n", env)
-	fmt.Printf("Kafka: %s, Topics: %s, %s\n", kafkaBrokers, userEventsTopic, analyticsTopic)
+	fmt.Printf("Kafka: %s, Topics: %s, %s\n", kafkaBrokers, notificationTopic, analyticsTopic)
 
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -72,8 +71,7 @@ func main() {
 			Timestamp: time.Now(),
 		}
 
-		// Send to user events
-		userWriter := getKafkaWriter(userEventsTopic)
+		userWriter := getKafkaWriter(notificationTopic)
 		userEventJSON, _ := json.Marshal(userEvent)
 		err := userWriter.WriteMessages(context.Background(), kafka.Message{
 			Value: userEventJSON,
@@ -81,9 +79,9 @@ func main() {
 		userWriter.Close()
 
 		if err != nil {
-			log.Printf("Failed to send user event: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
+			fmt.Printf("FAILED to send to Kafka: %v\n", err)
+		} else {
+			fmt.Printf("SUCCESS: Sent to Kafka: %s\n", string(userEventJSON))
 		}
 
 		analyticsWriter := getKafkaWriter(analyticsTopic)
@@ -105,6 +103,36 @@ func main() {
 		})
 	})
 
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":     "success",
+			"service":    "user-service",
+			"time":       time.Now(),
+			"checkKafka": checkHealthKafka(kafkaBrokers),
+		})
+	})
+
 	port := getEnv("PORT", "8080")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func checkHealthKafka(broker string) map[string]interface{} {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, err := kafka.DialContext(ctx, "tcp", broker)
+	if err != nil {
+		return map[string]interface{}{
+			"connected": false,
+			"error":     err.Error(),
+		}
+	}
+	defer conn.Close()
+
+	return map[string]interface{}{
+		"connected":   true,
+		"brokers":     broker,
+		"kafka_ready": true,
+	}
 }

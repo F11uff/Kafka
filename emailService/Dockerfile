@@ -9,8 +9,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /user-service
+RUN go build -o /email-service
 
-EXPOSE 8080
-
-CMD ["/user-service"]
+CMD ["/email-service"]

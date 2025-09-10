@@ -1,4 +1,4 @@
-module user-service
+module email-service
 
 go 1.21
 
