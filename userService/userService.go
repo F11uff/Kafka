@@ -72,16 +72,16 @@ func main() {
 		}
 
 		userWriter := getKafkaWriter(notificationTopic)
-		userEventJSON, _ := json.Marshal(userEvent)
+		notificationEvent, _ := json.Marshal(userEvent)
 		err := userWriter.WriteMessages(context.Background(), kafka.Message{
-			Value: userEventJSON,
+			Value: notificationEvent,
 		})
 		userWriter.Close()
 
 		if err != nil {
 			fmt.Printf("FAILED to send to Kafka: %v\n", err)
 		} else {
-			fmt.Printf("SUCCESS: Sent to Kafka: %s\n", string(userEventJSON))
+			fmt.Printf("SUCCESS: Sent to Kafka: %s\n", string(notificationEvent))
 		}
 
 		analyticsWriter := getKafkaWriter(analyticsTopic)
@@ -103,36 +103,6 @@ func main() {
 		})
 	})
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"status":     "success",
-			"service":    "user-service",
-			"time":       time.Now(),
-			"checkKafka": checkHealthKafka(kafkaBrokers),
-		})
-	})
-
 	port := getEnv("PORT", "8080")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
-}
-
-func checkHealthKafka(broker string) map[string]interface{} {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	conn, err := kafka.DialContext(ctx, "tcp", broker)
-	if err != nil {
-		return map[string]interface{}{
-			"connected": false,
-			"error":     err.Error(),
-		}
-	}
-	defer conn.Close()
-
-	return map[string]interface{}{
-		"connected":   true,
-		"brokers":     broker,
-		"kafka_ready": true,
-	}
 }

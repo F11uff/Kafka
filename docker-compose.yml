@@ -82,7 +82,7 @@ services:
     restart: unless-stopped
 
   sms-service:
-    build: ./sms-service
+    build: ./smsService
     image: sms-service
     environment:
       KAFKA_BROKERS: kafka:9092

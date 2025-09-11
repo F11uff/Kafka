@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/segmentio/kafka-go"
 	"os"
 	"time"
-
-	"github.com/segmentio/kafka-go"
 )
 
 func getEnv(key, defaultValue string) string {
@@ -16,62 +14,66 @@ func getEnv(key, defaultValue string) string {
 	if value == "" {
 		return defaultValue
 	}
+
 	return value
 }
 
 func main() {
 	kafkaBrokers := getEnv("KAFKA_BROKERS", "kafka:9092")
 	topic := getEnv("KAFKA_TOPIC_NOTIFICATION_EVENTS", "notification-events")
-	groupID := getEnv("EMAIL_SERVICE_GROUP", "email-service-group")
+	groupID := getEnv("KAFKA_GROUP_ID", "sms-service-group")
 	env := getEnv("ENVIRONMENT", "development")
 
-	fmt.Printf("Starting Email Service in %s environment\n", env)
-	fmt.Printf("Listening to topic: %s, group: %s\n", topic, groupID)
-
-	fmt.Println("⏳ Waiting for Kafka Group Coordinator (this can take 2-3 minutes)...")
-	time.Sleep(120 * time.Second)
+	fmt.Printf("Starting SMS Service in %s environment\n", env)
+	fmt.Printf("Listening for SMS notifications on %s with group %s\n", topic, groupID)
 
 	consumer := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{kafkaBrokers},
-		Topic:    topic,
 		GroupID:  groupID,
+		Topic:    topic,
 		MinBytes: 10e3,
 		MaxBytes: 10e6,
 	})
+
 	defer consumer.Close()
+
+	fmt.Println("⏳ Waiting for Kafka Group Coordinator (this can take 2-3 minutes)...")
+	time.Sleep(120 * time.Second)
 
 	fmt.Println("Kafka consumer created.")
 
 	for {
 		msg, err := consumer.ReadMessage(context.Background())
 		if err != nil {
-			log.Printf("Failed to read message: %v", err)
-
+			fmt.Printf("Failed to read message from Kafka topic %s with error: %s\n", topic, err)
 			time.Sleep(10 * time.Second)
+
 			continue
 		}
 
 		var event map[string]interface{}
+
 		if err := json.Unmarshal(msg.Value, &event); err != nil {
-			log.Printf("Failed to unmarshal event: %v", err)
+			fmt.Printf("Failed to unmarshal Kafka message %s with error: %s\n", string(msg.Value), err)
 			continue
 		}
 
 		fmt.Printf("Parsed event: %+v\n", event)
 
 		if eventType, ok := event["event_type"].(string); ok && eventType == "user_registered" {
-			email, _ := event["email"].(string)
+			phone, _ := event["phone"].(string)
 			userID, _ := event["user_id"].(string)
 
 			fmt.Printf(`
---------------------------------------
-[EMAIL SERVICE] Sending welcome email:
+----------------------------------
+[SMS SERVICE] Sending welcome SMS:
 To: %s
 User ID: %s
 Time: %s
 Environment: %s
---------------------------------------
-`, email, userID, time.Now().Format(time.RFC3339), env)
+----------------------------------
+`, phone, userID, time.Now().Format(time.RFC3339), env)
 		}
+
 	}
 }

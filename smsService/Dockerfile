@@ -9,6 +9,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /email-service
+RUN go build -o /sms-service
 
-CMD ["/email-service"]
+CMD ["/sms-service"]
