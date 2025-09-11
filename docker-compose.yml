@@ -100,7 +100,7 @@ services:
     restart: unless-stopped
 
   analytics-service:
-    build: ./analytics-service
+    build: ./analyticsService
     image: analytics-service
     environment:
       KAFKA_BROKERS: kafka:9092

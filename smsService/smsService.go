@@ -21,7 +21,7 @@ func getEnv(key, defaultValue string) string {
 func main() {
 	kafkaBrokers := getEnv("KAFKA_BROKERS", "kafka:9092")
 	topic := getEnv("KAFKA_TOPIC_NOTIFICATION_EVENTS", "notification-events")
-	groupID := getEnv("KAFKA_GROUP_ID", "sms-service-group")
+	groupID := getEnv("SMS_SERVICE_GROUP", "sms-service-group")
 	env := getEnv("ENVIRONMENT", "development")
 
 	fmt.Printf("Starting SMS Service in %s environment\n", env)
