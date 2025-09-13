@@ -23,6 +23,6 @@ flowchart TB
 |:-------|:-----------|
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**UserService** | Генерирует события пользователей |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Kafka** | Брокер сообщений |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**EmailService** | Обрабатывает email-события |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**SmsService** | Обрабатывает SMS-события |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**EmailService** | Обрабатывает email-события |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**SmsService** | Обрабатывает SMS-события |
 | **AnalyticsService** | Анализирует все события 
