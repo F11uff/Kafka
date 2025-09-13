@@ -1,19 +1,15 @@
-```markdown
 # Архитектура проекта
+
+Взаимодействие микросервисов через Kafka:
 
 ```mermaid
 flowchart TB
-    UserService["UserService\n(API Producer)"] -->|"Produce message"| Kafka[("Kafka Message Broker")]
-    Kafka --> |"Email Events"| EmailService["EmailService\n(API Consumer)"]
-    Kafka --> |"Phone Events"| SmsService["SmsService\n(API Consumer)"]
-    Kafka --> |"All Events"| AnalyticsService["AnalyticsService\n(API Consumer)"]
-    
-    classDef producer fill:#401839,color:white,stroke:#ff6b6b,stroke-width:2px
-    classDef consumer fill:#401839,color:white,stroke:#4ecdc4,stroke-width:2px
-    classDef analytics fill:#401839,color:white,stroke:#f9ca24,stroke-width:2px
-    classDef broker fill:#154a3f,color:white,stroke:#1dd1a1,stroke-width:2px
-
-    class UserService producer
-    class EmailService,SmsService consumer
-    class AnalyticsService analytics
-    class Kafka broker
+    UserService("UserService (API Producer)") -->|Produce message| Kafka[(Kafka)]
+    Kafka --> |Email Events| EmailService("EmailService (API Consumer)")
+    Kafka --> |Phone Events| SmsService("SmsService (API Consumer)")
+    Kafka --> |All Events| AnalyticsService("AnalyticsService (API Consumer)")
+    style UserService fill:#401839,color:white, stroke:black, stroke-width:3
+    style AnalyticsService fill:#401839,color:white, stroke:black, stroke-width:3
+    style EmailService fill:#401839,color:white, stroke:black, stroke-width:3
+    style SmsService fill:#401839,color:white, stroke:black, stroke-width:3
+    style Kafka fill:#154a3f,color:white, stroke:black, stroke-width:3
