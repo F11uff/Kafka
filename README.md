@@ -25,4 +25,4 @@ flowchart TB
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Kafka** | Брокер сообщений |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**EmailService** | Обрабатывает email-события |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**SmsService** | Обрабатывает SMS-события |
-| &nbsp;&nbsp;&nbsp;**AnalyticsService** | Анализирует все события 
+| &nbsp;&nbsp;&nbsp;&nbsp;**AnalyticsService** | Анализирует все события 
