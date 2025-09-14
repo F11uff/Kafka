@@ -12,11 +12,16 @@
 </p>
 
 ```mermaid
+---
+config:
+  look: classic
+  theme: redux
+---
 flowchart TB
-    UserService("UserService (API Producer)") L_UserService_Kafka_0@-- Produce message --> Kafka[("Kafka")]
-    Kafka L_Kafka_EmailService_0@-- Email Events --> EmailService("EmailService (API Consumer)")
-    Kafka L_Kafka_SmsService_0@-- Phone Events --> SmsService("SmsService (API Consumer)")
-    Kafka L_Kafka_AnalyticsService_0@-- All Events --> AnalyticsService("AnalyticsService (API Consumer)")
+    UserService("UserService (API Producer)") L_UserService_Kafka_0@<-- Produce message --> Kafka[("Kafka")]
+    Kafka L_Kafka_EmailService_0@<-- Email Events --> EmailService("EmailService (API Consumer)")
+    Kafka L_Kafka_SmsService_0@<-- Phone Events --> SmsService("SmsService (API Consumer)")
+    Kafka L_Kafka_AnalyticsService_0@<-- All Events --> AnalyticsService("AnalyticsService (API Consumer)")
     style UserService fill:#401839,color:white, stroke:black, stroke-width:3
     style Kafka fill:#154a3f,color:white, stroke:black, stroke-width:3
     style EmailService fill:#401839,color:white, stroke:black, stroke-width:3
@@ -26,6 +31,7 @@ flowchart TB
     L_Kafka_EmailService_0@{ animation: slow } 
     L_Kafka_SmsService_0@{ animation: slow } 
     L_Kafka_AnalyticsService_0@{ animation: slow }
+
 ```
 
 <p align="center">
