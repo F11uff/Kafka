@@ -58,6 +58,41 @@ flowchart TB
 | &nbsp;&nbsp;&nbsp;&nbsp;**AnalyticsService** | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Анализирует все события 
 
 
+
+
+
+#### User Service
+- **Назначение**: Прием HTTP запросов и генерация событий
+- **Функции**:
+  - Валидация входящих данных
+  - Генерация уникальных ID пользователей
+  - Публикация событий в Kafka
+- **API endpoints**:
+  - `POST /register` - Регистрация пользователя
+
+#### Email Service
+- **Назначение**: Отправка email уведомлений
+- **Особенности**:
+  - Асинхронная обработка очереди
+ 
+#### SMS Service  
+- **Назначение**: Отправка SMS сообщений
+- **Особенности**:
+    - Асинхронная обработка очереди
+
+#### Analytics Service
+- **Назначение**: Сбор и анализ метрик
+- **Функции**:
+  - Мониторинг доставки уведомлений
+
+
+#### Apache Kafka
+- **Роль**: Центральный message broker
+- **Топики**:
+  - `user-events` - События пользователей
+  - `notification-events` - Уведомления
+  - `analytics-events` - Аналитические события
+
 <p align="center">
     <h3 align="center">
         API endpoint
@@ -119,5 +154,32 @@ direction TB
 	<h3 align="center">
 		Сборка и запуск
 	</h3>
+	
+```makefile
+all:
+
+build:
+	docker-compose build
+
+up:
+	docker-compose up
+
+down:
+	docker-compose down
+
+logs:
+	docker-compose logs -f sms-service user-service email-service analytics-service
+
+request:
+	curl -X POST http://localhost:8080/register -H "Content-Type: application/json" -d '{"email": "test@example.com", "phone": "+1234567890"}'
+```
+
+```go
+make build - Собирает все Docker образы для сервисов
+make up - Запускает всю систему
+make down - Останавливает и удаляет все контейнеры
+make logs - Показывает логи в реальном времени 
+make request - Отправляет тестовый запрос на сервис
+```
 </p>
 
