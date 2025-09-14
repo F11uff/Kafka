@@ -57,7 +57,7 @@ flowchart TB
         User Service
     </h4>
     <h4>
-        Post request (/register):
+       JSON Post request (/register):
     </h4>
 
 
@@ -81,3 +81,30 @@ direction TB
 ```
 
 </p>
+
+<p>
+	<h4>
+		JSON Answer:
+	</h4>
+	
+```mermaid
+ ---
+config:
+  look: handDrawn
+  theme: dark
+  layout: dagre
+---
+classDiagram
+direction TB
+    class JSONFields {
+	    String status
+	    String user_id
+      json.Unmarshal()
+    }
+	class JSONFields:::JSON_FIEDLS
+	classDef JSON_FIEDLS :,stroke-width:2px, stroke-dasharray: 0, fill:#401839, color:#FFFFFF, stroke:#000000
+ ```
+
+
+</p>
+
